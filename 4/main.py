@@ -1,5 +1,7 @@
 from fastapi import FastAPI
 
+
+#The Description Passed to the FastAPI Object Supports Markdown
 DESCRIPTION = """
 ## Special Thanks
 
@@ -9,6 +11,7 @@ DESCRIPTION = """
 - Striveworks
 """
 
+# All of this information is available to added to the Docs
 app = FastAPI(title="The Austin Python Meetup",
               description=DESCRIPTION,
               version="1.0.0",
