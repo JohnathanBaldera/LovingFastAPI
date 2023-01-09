@@ -14,6 +14,8 @@ DESCRIPTION = """
 # All of this information is available to added to the Docs
 app = FastAPI(title="The Austin Python Meetup",
               description=DESCRIPTION,
+              docs_url="/austin",
+              redoc_url=None,
               version="1.0.0",
               terms_of_service="I <3 MLOps",
               contact={
