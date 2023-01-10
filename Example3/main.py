@@ -2,7 +2,7 @@ from typing import List
 from fastapi import FastAPI
 from pydantic import BaseModel, EmailStr
 import bcrypt
-from .user_data import user_data
+from data.user_data import user_data # pylint: disable=E0401
 
 
 app = FastAPI()
@@ -15,9 +15,11 @@ app = FastAPI()
 class UserBase(BaseModel):
     username: str
     email: EmailStr
+    name: str
 
 # New Users create a password.  We NEVER respond with a request sending their password
 # Passwords should not be stored in databases, hashed values should be stored instead
+# This example is meant to be concise but not standard practice of authentication
 
 
 class UserIn(UserBase):
@@ -29,6 +31,10 @@ class UserIn(UserBase):
 class UserOut(UserBase):
     id: int
 
+
+class UserInDB(UserOut):
+    hashed_pw: str
+
 # response_model parameter will filter out our return JSON to match the given type
 
 
@@ -38,13 +44,13 @@ async def get_users():
 
 
 @app.post("/users", response_model=UserOut)
-async def new_user(user: UserIn):
+async def create_user(user: UserIn):
     new_id = len(user_data) + 1
     salt = bcrypt.gensalt()
-    hashed = bcrypt.hashpw(user.password, salt)
-    user["hashed_pw"] = hashed
-    user["id"] = new_id
-    return user_data[new_id]
+    hashed = bcrypt.hashpw(bytes(user.password, 'utf-8'), salt)
+    new_user = UserInDB(**user.dict(), hashed_pw=hashed, id=new_id)
+    user_data.append(new_user)
+    return user_data[new_id - 1]
 
 
 @app.get("/users/{user_id}", response_model=UserOut)
